@@ -29,13 +29,14 @@ const FirebaseContext = createContext(null);
 
 // ✅ Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAr_SQBpkMHP_nFOgP3rV6-n5p7hUlXQdE",
-  authDomain: "project-tracker-acf1a.firebaseapp.com",
-  projectId: "project-tracker-acf1a",
-  storageBucket: "project-tracker-acf1a.firebasestorage.app",
-  messagingSenderId: "475809830726",
-  appId: "1:475809830726:web:b6c154305b1ac79a13b747",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+
 
 // Initialize Firebase services
 const firebaseApp = initializeApp(firebaseConfig);
