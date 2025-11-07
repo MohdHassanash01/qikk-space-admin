@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -7,8 +7,10 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
-  signOut
+  signOut,
 } from "firebase/auth";
+
+import type { User } from "firebase/auth"; 
 
 import {
   getFirestore,
@@ -24,8 +26,33 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 
+
+// 🧩 Define TypeScript interface for context
+interface FirebaseContextType {
+  signupUserWithEmailAndPassword: (email: string, password: string) => Promise<any>;
+  signinUserWithEmailAndPassword: (email: string, password: string) => Promise<any>;
+  signinWithGoogle: () => Promise<any>;
+  handleCreateNewList: (
+    name: string,
+    category: string,
+    description: string,
+    technologies: string[],
+    client: string,
+    year: string,
+    createdAt: string,
+    image: File,
+    url: string,
+  ) => Promise<any>;
+  getData: () => Promise<any>;
+  getImagesUrl: (imagePath: string) => Promise<string>;
+  user: User | null;
+  isloggedIn: boolean;
+  logoutUser: () => Promise<void>;
+}
+
+
 // Create context
-const FirebaseContext = createContext(null);
+const FirebaseContext = createContext<FirebaseContextType | null>(null);
 
 // ✅ Your Firebase configuration
 const firebaseConfig = {
@@ -45,8 +72,9 @@ const googleProvider = new GoogleAuthProvider();
 const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
-export const FirebaseProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+export const FirebaseProvider = ({ children }:{children: ReactNode}) => {
+
+  const [user, setUser] = useState<User | null>(null);;
 
   // ✅ Function names should be camelCase
   function signupUserWithEmailAndPassword(email:string, password:string) {
@@ -90,7 +118,8 @@ export const FirebaseProvider = ({ children }) => {
     client: string,
     year: string,
     createdAt: string,
-    image: File
+    image: File,
+    url: string,
   ) {
 
     console.log({
@@ -101,7 +130,8 @@ export const FirebaseProvider = ({ children }) => {
       client,
       year,
       createdAt,
-      image
+      image,
+      url,
     });
     
 
@@ -132,6 +162,7 @@ export const FirebaseProvider = ({ children }) => {
         displayName: user?.displayName || "",
         photoURL: user?.photoURL || "",
         timestamp: new Date().toISOString(),
+        url,
       })
 
   
@@ -151,7 +182,7 @@ export const FirebaseProvider = ({ children }) => {
   }
 
   // ✅ Get image download URL
-    const getImagesUrl = async (imagePath) => {
+    const getImagesUrl = async (imagePath:string):Promise<string> => {
     if (!imagePath) return "";
     try {
       const url = await getDownloadURL(ref(storage, imagePath));
@@ -181,5 +212,12 @@ export const FirebaseProvider = ({ children }) => {
   );
 };
 
-// ✅ Custom hook for using Firebase context
-export const useFirebase = () => useContext(FirebaseContext);
+
+export const useFirebase = () => {
+  const context = useContext(FirebaseContext);
+  if (!context) {
+    throw new Error("useFirebase must be used within a FirebaseProvider");
+  }
+  return context;
+};
+

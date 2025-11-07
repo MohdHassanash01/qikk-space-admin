@@ -1,63 +1,67 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { useFirebase } from "@/context/Firebase"
-import React, { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { toast } from "react-toastify"
+
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useFirebase } from "@/context/Firebase";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const PortfolioAdminPage: React.FC = () => {
-  const navigate = useNavigate()
-  const { handleCreateNewList } = useFirebase() || {}
+  const navigate = useNavigate();
+  const { handleCreateNewList,isloggedIn } = useFirebase(); // ✅ Correct usage, no fallback
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [techInput, setTechInput] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [techInput, setTechInput] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     category: "",
-    image: null as File | null,
     description: "",
     technologies: [] as string[],
     client: "",
     year: "",
     createdAt: "",
-  })
+   image: null as File | null,
+    url:"",
+  });
 
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value, files } = e.target as HTMLInputElement
+    const { name, value, files } = e.target as HTMLInputElement;
 
     if (name === "image" && files && files.length > 0) {
-      setFormData({ ...formData, image: files[0] })
+      setFormData({ ...formData, image: files[0] });
     } else if (name === "technologies") {
-      setTechInput(value)
+      setTechInput(value);
     } else {
-      setFormData({ ...formData, [name]: value })
+      setFormData({ ...formData, [name]: value });
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       const techArray = techInput
         .split(/[\s,]+/)
         .map((t) => t.trim())
-        .filter((t) => t !== "")
+        .filter((t) => t !== "");
 
       const finalData = {
         ...formData,
         technologies: techArray,
-      }
+      };
 
+      // ✅ Validation
       if (!finalData.name || !finalData.category || !finalData.image) {
-        toast.error("⚠️ Please fill all required fields!")
-        setIsSubmitting(false)
-        return
+        toast.error("⚠️ Please fill all required fields!");
+        setIsSubmitting(false);
+        return;
       }
 
       const data = await handleCreateNewList(
@@ -68,11 +72,12 @@ const PortfolioAdminPage: React.FC = () => {
         finalData.client,
         finalData.year,
         finalData.createdAt,
-        finalData.image
-      )
+        finalData.image,
+        finalData.url
+      );
 
-      if (data && data.id) {
-        toast.success("✅ Project added successfully!")
+      if (data && (data as any).id) {
+        toast.success("✅ Project added successfully!");
         setFormData({
           name: "",
           category: "",
@@ -80,20 +85,27 @@ const PortfolioAdminPage: React.FC = () => {
           description: "",
           technologies: [],
           client: "",
+          url:"",
           year: "",
           createdAt: "",
-        })
-        setTechInput("")
+        });
+        setTechInput("");
       } else {
-        toast.error("⚠️ Something went wrong while saving project!")
+        toast.error("⚠️ Something went wrong while saving project!");
       }
     } catch (error) {
-      console.error("🔥 Upload error:", error)
-      toast.error("❌ Failed to add project")
+      console.error("🔥 Upload error:", error);
+      toast.error("❌ Failed to add project");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
+
+  useEffect(() => {
+    if (!isloggedIn) {
+      navigate("/signin");
+    }
+  }, [isloggedIn, navigate]);
 
   return (
     <div className="py-20 px-4 flex justify-center items-center drop-shadow-lg">
@@ -107,6 +119,7 @@ const PortfolioAdminPage: React.FC = () => {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Project Title */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Project Title *
@@ -121,6 +134,7 @@ const PortfolioAdminPage: React.FC = () => {
                 />
               </div>
 
+              {/* Category */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Category *
@@ -142,6 +156,7 @@ const PortfolioAdminPage: React.FC = () => {
                 </select>
               </div>
 
+              {/* Image Upload */}
               <div>
                 <label className="block text-sm font-medium mb-2">Image *</label>
                 <Input
@@ -153,6 +168,7 @@ const PortfolioAdminPage: React.FC = () => {
                 />
               </div>
 
+              {/* Description */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Description *
@@ -167,6 +183,7 @@ const PortfolioAdminPage: React.FC = () => {
                 />
               </div>
 
+              {/* Technologies */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Technologies * (comma or space separated)
@@ -196,6 +213,7 @@ const PortfolioAdminPage: React.FC = () => {
                 )}
               </div>
 
+              {/* Client */}
               <div>
                 <label className="block text-sm font-medium mb-2">Client *</label>
                 <Input
@@ -208,6 +226,20 @@ const PortfolioAdminPage: React.FC = () => {
                 />
               </div>
 
+                {/* company url */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Company Url *</label>
+                <Input
+                  type="text"
+                  name="url"
+                  value={formData.url}
+                  onChange={handleInputChange}
+                  placeholder="https://random-url.com/"
+                  required
+                />
+              </div>
+
+              {/* Year */}
               <div>
                 <label className="block text-sm font-medium mb-2">Year *</label>
                 <Input
@@ -220,6 +252,7 @@ const PortfolioAdminPage: React.FC = () => {
                 />
               </div>
 
+              {/* Date */}
               <div>
                 <label className="block text-sm font-medium mb-2">Date *</label>
                 <Input
@@ -231,6 +264,7 @@ const PortfolioAdminPage: React.FC = () => {
                 />
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 className="w-full text-lg py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
@@ -243,7 +277,7 @@ const PortfolioAdminPage: React.FC = () => {
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PortfolioAdminPage
+export default PortfolioAdminPage;
