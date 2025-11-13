@@ -1,4 +1,4 @@
-import {  Home,Group } from "lucide-react"
+import {  Home,Group, ChevronDown, Plus, Edit } from "lucide-react"
 
 import {Link} from "react-router-dom"
 
@@ -17,6 +17,7 @@ import {
 } from "../components/ui/sidebar"
 import { useState } from "react"
 import {useFirebase} from "../context/Firebase"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible"
 
 
 
@@ -35,15 +36,7 @@ const items = [
     url: "/",
     icon: Home,
    onclick:() => setCurrentTab("Home")
-  },
-   {
-    title: "Portfolio",
-    url: "/portfolio",
-    icon: Group ,
-   onclick:() => setCurrentTab("Portfolio")
-
-  },
-
+  }
 ]
  
   return (
@@ -70,6 +63,7 @@ const items = [
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
+
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}  >
@@ -82,7 +76,51 @@ const items = [
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+
+  <SidebarMenu>
+            {/* COLLAPSABLE */}
+            <Collapsible defaultOpen={false} className="group/collapsible">
+              <SidebarGroup>
+                <SidebarGroupLabel asChild>
+
+                  <CollapsibleTrigger className=" hover:bg-[#262626]">
+                <div className="flex gap-2 items-center text-[16px]">
+                    <Group size={15}/>
+                   Portfolio
+                </div>
+                    <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                  </CollapsibleTrigger>
+
+                </SidebarGroupLabel>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <Link to="/addProject">
+                            <Plus />
+                            Add Project
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <Link to="/projects">
+                            <Edit />
+                            Edit Project
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+  </SidebarMenu>
+
           </SidebarGroupContent>
+
+
         </SidebarGroup>
 
       </SidebarContent>
@@ -92,7 +130,7 @@ const items = [
 <SidebarMenu>
   <SidebarMenuItem>
 
- <div className="flex items-center gap-3 bg-neutral-800/50 hover:bg-neutral-800 transition-all rounded-xl p-2">
+ <div className="flex items-center gap-3 dark:bg-neutral-800/50 dark:hover:bg-neutral-800 transition-all rounded-xl p-2 bg-black">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold">
           {user?.email?.[0]?.toUpperCase() || "G"}
         </div>

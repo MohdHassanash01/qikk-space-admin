@@ -4,38 +4,47 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useFirebase } from "@/context/Firebase";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { doc, updateDoc } from "firebase/firestore";
 
-const PortfolioAdminPage: React.FC = () => {
+import {firestore} from "../context/Firebase"
+
+const EditProject: React.FC = () => {
+   
+  const location = useLocation()  
   const navigate = useNavigate();
-  const { handleCreateNewList,isloggedIn } = useFirebase(); // ✅ Correct usage, no fallback
+
+  const { isloggedIn } = useFirebase(); // ✅ Correct usage, no fallback
+
+const data = location.state.project
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [techInput, setTechInput] = useState("");
+  const [techInput, setTechInput] = useState(data.technologies.join(", "));
 
   const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    description: "",
-    technologies: [] as string[],
-    client: "",
-    year: "",
-    createdAt: "",
+    name: data.name,
+    category: data.category,
+    description: data.description,
+    technologies: data.technologies,
+    client: data.client,
+    year: data.year,
+    createdAt: data.createdAt,
    image: null as File | null,
-    url:"",
+    url:data.url,
   });
+
+  console.log(location);
+  
 
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value, files } = e.target as HTMLInputElement;
+    const { name, value } = e.target as HTMLInputElement;
 
-    if (name === "image" && files && files.length > 0) {
-      setFormData({ ...formData, image: files[0] });
-    } else if (name === "technologies") {
+    if (name === "technologies") {
       setTechInput(value);
     } else {
       setFormData({ ...formData, [name]: value });
@@ -49,8 +58,8 @@ const PortfolioAdminPage: React.FC = () => {
     try {
       const techArray = techInput
         .split(/[\s,]+/)
-        .map((t) => t.trim())
-        .filter((t) => t !== "");
+        .map((t: string) => t.trim())
+        .filter((t: string) => t !== "");
 
       const finalData = {
         ...formData,
@@ -58,27 +67,21 @@ const PortfolioAdminPage: React.FC = () => {
       };
 
       // ✅ Validation
-      if (!finalData.name || !finalData.category || !finalData.image) {
+      if (!finalData.name || !finalData.category ) {
         toast.error("⚠️ Please fill all required fields!");
         setIsSubmitting(false);
         return;
       }
 
-      const data = await handleCreateNewList(
-        finalData.name,
-        finalData.category,
-        finalData.description,
-        finalData.technologies,
-        finalData.client,
-        finalData.year,
-        finalData.createdAt,
-        finalData.image,
-        finalData.url
-      );
+    console.log(finalData);
 
-      if (data && (data as any).id) {
-        toast.success("✅ Project added successfully!");
-         navigate("/projects")
+    const docRef = doc(firestore as any,"portfolioAdmin",data.id)
+
+    const updateData = await updateDoc(docRef,finalData)
+
+    console.log(updateData);
+    
+        toast.success("✅ Project updated successfully!");
         setFormData({
           name: "",
           category: "",
@@ -91,10 +94,8 @@ const PortfolioAdminPage: React.FC = () => {
           createdAt: "",
         });
         setTechInput("");
-       
-      } else {
-        toast.error("⚠️ Something went wrong while saving project!");
-      }
+        navigate("/projects")
+
     } catch (error) {
       console.error("🔥 Upload error:", error);
       toast.error("❌ Failed to add project");
@@ -115,7 +116,7 @@ const PortfolioAdminPage: React.FC = () => {
         <Card className="service-card w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
-              Add New Project to Portfolio
+              Update Project
             </CardTitle>
           </CardHeader>
 
@@ -159,16 +160,16 @@ const PortfolioAdminPage: React.FC = () => {
               </div>
 
               {/* Image Upload */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium mb-2">Image *</label>
                 <Input
                   type="file"
                   name="image"
                   accept="image/*"
                   onChange={handleInputChange}
-                  required
+                //   required
                 />
-              </div>
+              </div> */}
 
               {/* Description */}
               <div>
@@ -202,8 +203,8 @@ const PortfolioAdminPage: React.FC = () => {
                   <div className="flex flex-wrap gap-2 mt-2">
                     {techInput
                       .split(/[\s,]+/)
-                      .filter((t) => t.trim() !== "")
-                      .map((tech, i) => (
+                      .filter((t:string) => t.trim() !== "")
+                      .map((tech:string, i:number) => (
                         <span
                           key={i}
                           className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
@@ -282,4 +283,4 @@ const PortfolioAdminPage: React.FC = () => {
   );
 };
 
-export default PortfolioAdminPage;
+export default EditProject;

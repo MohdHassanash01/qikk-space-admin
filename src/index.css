@@ -98,6 +98,29 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+   --radius: 0.625rem;
+
+  /* ==== BASE COLORS ==== */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --border: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+
+  /* ==== GLOW COLORS ==== */
+  --electric-blue: 210 100% 60%;
+  --neon-purple: 270 100% 60%;
+  --cyber-pink: 330 100% 60%;
+  --shadow-neon: 0 0 20px hsl(var(--electric-blue) / 0.6);
+  --shadow-intense: 0 0 40px hsl(var(--electric-blue) / 0.9);
+  --shadow-purple: 0 0 30px rgba(168, 85, 247, 0.6);
+  --gradient-primary: linear-gradient(90deg, hsl(var(--electric-blue)), #a855f7);
+  --gradient-card: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.1));
+  --transition-smooth: all 0.3s ease;
 }
 
 .dark {
@@ -141,4 +164,115 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ============================= */
+/*     GLOW + ANIMATION STYLES   */
+/* ============================= */
+
+/* Button Styles - Fixed */
+.btn-outline-glow {
+  border: 2px solid hsl(var(--electric-blue));
+  background: transparent;
+  color: hsl(var(--electric-blue));
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-outline-glow:hover {
+  background: hsl(var(--electric-blue));
+  color: white;
+  box-shadow: var(--shadow-neon);
+  transform: translateY(-2px);
+}
+
+.btn-electric {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  border: none;
+  box-shadow: var(--shadow-neon);
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-electric:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-intense);
+}
+
+/* Keep your original utilities */
+@layer utilities {
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  /* Color utilities for stats */
+  .text-cyber-pink {
+    color: hsl(var(--cyber-pink));
+  }
+
+  .text-neon-purple {
+    color: hsl(var(--neon-purple));
+  }
+
+  /* Pulse glow animation */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  /* Floating animation */
+  .floating {
+    animation: floating 3s ease-in-out infinite;
+  }
+}
+
+@keyframes floating {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes pulse-glow {
+  from {
+    box-shadow: 0 0 20px hsl(var(--electric-blue) / 0.4);
+  }
+  to {
+    box-shadow: 0 0 40px hsl(var(--electric-blue) / 0.9);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
 }

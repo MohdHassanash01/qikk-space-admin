@@ -69,7 +69,8 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
-const firestore = getFirestore(firebaseApp);
+
+export const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
 export const FirebaseProvider = ({ children }:{children: ReactNode}) => {

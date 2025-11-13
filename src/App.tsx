@@ -16,6 +16,10 @@ const PortfolioAdminPage = lazy(() => import("./pages/PortfolioAdminPage"))
 const Signup  = lazy(() => import("./pages/Signup"))
 const Signin = lazy(() => import("./pages/Signin"))
 
+const ProjectList = lazy(() => import("./pages/ProjectList"))
+
+const EditProject = lazy(() => import("./pages/EditProject"))
+
 // Memoized App component to prevent unnecessary re-renders
 const App = memo(() => (
   <ErrorBoundary>
@@ -33,7 +37,12 @@ const App = memo(() => (
       <Route path="/" element={<Layout/>}>
 
       <Route path="/" element={<HomePage />} />
-      <Route path="/portfolio" element={<PortfolioAdminPage />} />
+
+      <Route path="/addProject" element={<PortfolioAdminPage />} />
+
+         <Route path="/projects" element={<ProjectList />} />
+
+         <Route path="/editProject" element={<EditProject/>}/>
 
       <Route path="*" element={<NotFound />} />
 
